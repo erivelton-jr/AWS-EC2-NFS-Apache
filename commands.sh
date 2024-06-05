@@ -43,3 +43,43 @@ aws ec2 allocate-address --domain "SEU VPC_ID" #Gera um Elatic IP
 aws ec2 describe-instances --query "Reservations[*].Instances[*].InstanceId" --output text #coleta o ID da suas instancias
 
 aws ec2 associate-address --instance-id "SUA INSTANCE_ID" --allocation-id "SEU ELASTIC iP_ID" #Associa a instancia
+
+#CONFIGURANDO NFS E APACHE
+
+#1. Baixando e configurando NFS.
+
+sudo yum update 
+sudo yum install nfs-utils
+
+#configurando diretório
+
+sudo mkdir -p /mnt/nfs_srver
+sudo chown nfsnobody:nfsnobody /mnt/nfs_server
+
+echo "/mnt/nfs_server *(rw,sync,no_subtree_check)" | sudo tee -a /etc/exports
+sudo exportfs -a #atualiza as exportações NFS no seu sistema
+
+sudo systemctl enable nfs-server #habilita o nfs-server
+sudo systemctl start nfs-server #inicia o nfs-server
+
+sudo mkdir /mnt/nfs_server/erivelton
+sudo chown ec2-user:ec2-user /mnt/nfs_server/erivelton
+
+#2. Instalando apache
+
+sudo yum install httpd
+sudo systemctl start httpd
+sudo systemctl enable httpd
+
+nano monitor_apache.sh #criando script
+
+chmod +x monitor_apache.sh #tornando o arquivo executável
+
+# 3. Automatizando Script
+
+crontab -e #editando crontab
+*/5 * * * * /home/ec2-user/monitor_apache.sh #automatizando script
+
+# 4. Criando Alias para o diretório NFS
+
+sudo nano /etc/httpd/conf.d/nfs_logs.conf

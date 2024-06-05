@@ -77,5 +77,100 @@ aws ec2 allocate-address --domain "SEU VPC_ID" #Cria Elastic IP
 
 aws ec2 associate-address --instance-id "SUA INSTANCE_ID" --allocation-id "SEU ELASTIC iP_ID" #Associa a instancia
 ```
+****
+# Configurando NFS e Apache
 
+Agora que configuramos a Instancia, iremos configurar o NFS e o Apache.
 
+#### 1. Baixando e configurando NFS.
+
+```bash
+sudo yum update -y
+sudo yum -y install nfs-utils
+```
+
+Depois que instalar, vamos configurar o diretório de exportação
+
+```bash
+    sudo mkdir -p /mnt/nfs_srver
+    sudo chown nfsnobody:nfsnobody /mnt/nfs_server
+```
+Esse comando cria o diretório `/mnt/nfs_share` e altera a propriedade do diretório para o usuário `nfsnobody`e o grupo `nfsnobody`. 
+* _Isso é comum já que este é um servidor publico, onde em diretórios compartilhados onde a propriedade individual não é necessária ou desejada._
+
+```bash
+echo "/mnt/nfs_server *(rw,sync,no_subtree_check)" | sudo tee -a /etc/exports
+sudo exportfs -a #atualiza as exportações NFS no seu sistema
+```
+todo o comando configura o compartilhamento NFS no diretório `/mnt/nfs_server` permitindo acesso de leitura e escrita a qualquer host que se conecte, força a sincronização de dados e desabilita a verificação de subárvore para potencialmente melhorar o desempenho.
+
+Após isso, só habilitar e iniciar o `nfs-server`
+```bash
+sudo systemctl enable nfs-server
+sudo systemctl start nfs-server
+```
+Feito isso, irei criar um diretório detro do NFS FileSystem
+```bash
+sudo mkdir /mnt/nfs_server/erivelton
+sudo chown ec2-user:ec2-user /mnt/nfs_server/erivelton
+```
+#### 2. Instalando apache
+
+```bash
+sudo yum install httpd
+sudo systemctl start httpd
+sudo systemctl enable httpd
+```
+
+#### 3. Criando script
+
+```bash
+nano monitor_apache.sh
+```
+
+```bash
+#!/bin/bash
+
+STATUS=$(systemctl is-active httpd)
+TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+DIRECTORY="/mnt/nfs_server/erivelton"
+
+if [ "$STATUS" == "active" ]; then
+    echo "$TIMESTAMP - httpd - ONLINE - Apache está funcionando" >> "$DIRECTORY/apache_status_online.log"
+else
+    echo "$TIMESTAMP - httpd - OFFLINE - Apache não está funcionando" >> "$DIRECTORY/apache_status_offline.log"
+fi
+```
+
+```bash
+chmod +x monitor_apache.sh #tornando o arquivo executável
+```
+
+#### 4. Automatizando Script
+
+```bash
+crontab -e #editando crontab
+```
+Adicionando seguinte linha no crotab
+```bash
+*/5 * * * * /home/ec2-user/monitor_apache.sh
+```
+Esse comando prepara a execução automatizada do script a cada 5 minutos.
+
+#### 5. Criando Alias para o diretório NFS
+
+```bash
+sudo nano /etc/httpd/conf.d/nfs_logs.conf
+```
+Agora, basta adicionar o seguinte comando:
+```bash
+Alias /nfs_logs /mnt/nfs_server/erivelton
+
+<Directory /mnt/nfs_server/erivelton>
+    Options Indexes FollowSymLinks
+    AllowOverride None
+    Require all granted
+</Directory>
+```
+----
+**Importante:** Desligue a máquina quando não for utilizar ⚠ 
