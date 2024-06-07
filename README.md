@@ -1,10 +1,35 @@
-# Criando Instância EC-2
+# Implantação e Configuração de Apache HTTP Server no Amazon Linux 2 com Monitoramento de Serviços
 
-#### Criando instância via terminal
+Este projeto visa configurar um servidor web Apache em uma instância Amazon Linux 2 executada no AWS EC2. O projeto abrange a instalação e configuração do Apache, a criação e configuração de diretórios para servir conteúdo, a implementação de scripts de monitoramento para verificar o estado do serviço Apache. Inclui também a configuração de permissões apropriadas e o uso de Elastic IP para garantir o acesso contínuo ao servidor web.
 
-<div>Neste repositório irei mostrar o proceso de criação de uma instância ec2 </div>
+## Objetivos
 
---- 
+1. **Gerar uma chave pública para acesso ao ambiente**
+2. **Criar 1 instância EC2 com o sistema operacional Amazon Linux 2**
+    - Família: t3.small
+    - Armazenamento: 16 GB SSD
+3. **Gerar 1 Elastic IP e anexar à instância EC2**
+4. **Liberar as portas de comunicação para acesso público:**
+    - 22/TCP
+    - 111/TCP e UDP
+    - 2049/TCP/UDP
+    - 80/TCP
+    - 443/TCP
+
+#### Requisitos no Linux
+
+1. **Configurar o NFS entregue**
+2. **Criar um diretório dentro do filesystem do NFS com meu nome**
+3. **Subir um Apache no servidor**
+    - O Apache deve estar online e rodando
+4. **Criar um script que valide se o serviço está online e envie o resultado da validação para o seu diretório no NFS**
+    - O script deve conter: Data HORA + nome do serviço + Status + mensagem personalizada de ONLINE ou OFFLINE
+    - O script deve gerar 2 arquivos de saída: 1 para o serviço ONLINE e 1 para o serviço OFFLINE
+5. **Preparar a execução automatizada do script a cada 5 minutos**
+6. **Fazer o versionamento da atividade**
+7. **Fazer a documentação explicando o processo de instalação do Linux**
+
+## Detalhamento do Processo
 
 #### 1. Logando no terminal.
 
@@ -172,5 +197,6 @@ Alias /nfs_logs /mnt/nfs_server/erivelton
     Require all granted
 </Directory>
 ```
+* Para acessar os logs, basa digitar http://seu_ip/nfs_logs
 ----
 **Importante:** Desligue a máquina quando não for utilizar ⚠ 
