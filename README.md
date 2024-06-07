@@ -197,5 +197,6 @@ Alias /nfs_logs /mnt/nfs_server/erivelton
     Require all granted
 </Directory>
 ```
+* Para visualizar os logs basta colocar no seu navegador: `https://seu-ip/nfs_logs`
 ---
 **Importante:** Desligue a máquina quando não for utilizar ⚠ 
