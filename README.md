@@ -1,6 +1,6 @@
 # Implantação e Configuração de Apache HTTP Server no Amazon Linux 2 com Monitoramento de Serviços
 
-Este projeto visa configurar um servidor web Apache em uma instância Amazon Linux 2 executada no AWS EC2. O projeto abrange a instalação e configuração do Apache, a criação e configuração de diretórios para servir conteúdo, a implementação de scripts de monitoramento para verificar o estado do serviço Apache. Inclui também a configuração de permissões apropriadas e o uso de Elastic IP para garantir o acesso contínuo ao servidor web.
+Este projeto visa configurar um servidor web Apache em uma instância Amazon Linux 2 executada no AWS EC2. O projeto abrange a instalação e configuração do Apache, a criação e configuração de diretórios para servir conteúdo e a implementação de scripts de monitoramento para verificar o estado do serviço Apache. Inclui também a configuração de permissões apropriadas e o uso de Elastic IP para garantir o acesso contínuo ao servidor web.
 
 ## Objetivos
 
@@ -176,7 +176,7 @@ chmod +x monitor_apache.sh #tornando o arquivo executável
 ```bash
 crontab -e #editando crontab
 ```
-Adicionando seguinte linha no crotab
+Adicionando seguinte linha no crontab
 ```bash
 */5 * * * * /home/ec2-user/monitor_apache.sh
 ```
